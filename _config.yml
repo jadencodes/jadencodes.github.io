@@ -23,8 +23,8 @@ email: jadencodes@example.com
 description: >- # this means to ignore newlines until "baseurl:"
   I write code and tinker with random stuff.
 baseurl: "" # the subpath of your site, e.g. /blog
-domain: "jadencodes.github.io"
-url: "https://jadencodes.github.io" # the base hostname & protocol for your site, e.g. http://example.com
+domain: "jadencodes.io"
+url: "https://jadencodes.io" # the base hostname & protocol for your site, e.g. http://example.com
 twitter_username: jadencodes
 github_username:  jadencodes
 
@@ -35,6 +35,8 @@ theme: minima
 plugins:
   - jekyll-feed
   - jekyll-remote-theme
+
+google_analytics: G-NYF9P7LN4D
 
 # Exclude from processing.
 # The following items will not be processed, by default.
