@@ -17,10 +17,11 @@ They have provided Jeopory style CTF (capture the flag) competitions that I (and
 
 `Jeopordy style` means the CTF solutions are submitted in standardized `flags`. For cloudvillage, the format was `FLAG-{ANY_32_CHARS_HERE}`; for example, `FLAG-{abcdefghijklemnopqrstuvwxyz1234567890}`
 
+This post will document how and why we went through the first CTF challenge including the thought process, incorrect approaches and red herrings.
 
-## The Prompt
+## Prompt
 
-Oftentimes, background information (including things like entire fake companies that have been created) will lead the prompt:
+Oftentimes, background information (including things like entire fake companies that have been created) will precede the prompt:
 
 >Sensorby LLC is a security boutique which focuses on web app security. It's research and devops team is creating a new web application scanner which they say "finds bugs faster than bug hunters". But one of its security engineers told me personally that while the product is amazing, the companies secops sucks - plaintext passwords in sticky notes, saving credentials in VMs and containers, etc.
 
@@ -45,13 +46,13 @@ At this point it's a lot of guessing, trying different things, documenting and s
 
 [docker containers](https://www.docker.com/) are something I use every day and am very comfortable finding, building, and deploying so I figured I would start there. The first place I looked was the most popular **public** docker container registry: [docker hub](https://hub.docker.com/). I just started blindly searching for anything and everything around `Sensorby`.
 
-Nothing was coming up there, so I started looking at the VM aspect. For this, I started in the cloud provider I am most familiar with: `AWS`. I use the console and CLI pretty much every day at work and home. To look for virtual machines, I went to `EC2 -> AMI` and began the same blind searching through community VMs. Again nothing really came up.
+Nothing was coming up there, so I started looking at the VM aspect. For this, I started in the cloud provider I am most familiar with: `AWS`. To look for virtual machines, I went to `EC2 -> AMI` and began the same blind searching through community VMs. Again nothing really came up.
 
-### The start
+### First clue
 
 If it was in another cloud providers VM, I was not the correct person to find it, so I started casting a wider net on the container lookup. There are other registries as well so I started going through them. 
 
-After running out of things to search in `docker hub`, I moved to look at `quay.io`, but the same nothingness. I then had a quick memory that ECR (elastic container registry) had announced changes to their public repository support somewhat recently called _Gallery_. First search of [`Sensorby`](https://gallery.ecr.aws/?searchTerm=Sensorby) on the public registry and **boom** we had something:
+After running out of things to search in `docker hub`, I moved to look at `quay.io`, but the same nothingness. I then had a recollection that ECR (elastic container registry) had announced changes to their public repository `Gallery` somewhat recently so I figured I'd look there. First search of [`Sensorby`](https://gallery.ecr.aws/?searchTerm=Sensorby) on the public registry and **boom** we had something:
 
 ![ECR Sensorby search result](/assets/images/sensorby-ecr-gallery.png)
 
@@ -177,7 +178,7 @@ At this point I switch to a different problem after noting the findings in our d
 
 #### Back to the image
 
-After a few more ~~drinks~~ hours, I go back to the image, at this point both my teammates and myself have checked every environment variable, softlink, and daemon of the **running** container and nothing is sticking out.
+After a few more ~~drinks~~ hours, I went back to the image, at this point both my teammates and myself have checked every environment variable, softlink, and daemon of the **running** container and nothing is sticking out.
 
 I have a thought: we need to see _how_ the image was made. A quick search in Github for the sensorby Dockerfile didn't yield any results so I would have to look at the next best option: `docker history`.
 
@@ -200,7 +201,7 @@ Would generate three individual layers (images), each with additions from the pr
 Back to the image at hand:
 
 ```console
-$ docker history public.ecr.aws/sensorby/serialization-dumper:latest 
+jaden@monstera:~$ docker history public.ecr.aws/sensorby/serialization-dumper:latest 
 IMAGE          CREATED       CREATED BY                                      SIZE      COMMENT
 c76f6ff58ae2   5 weeks ago   /bin/sh -c #(nop)  ENTRYPOINT ["java" "-jar"…   0B        
 <missing>      5 weeks ago   /bin/sh -c rm -rf /usr/src/SerializationDump…   0B        
@@ -218,7 +219,7 @@ c76f6ff58ae2   5 weeks ago   /bin/sh -c #(nop)  ENTRYPOINT ["java" "-jar"…   0
 <missing>      3 years ago   /bin/sh -c #(nop) ADD file:0eb5ea35741d23fe3…   5.58MB    file:0eb5ea35741d23fe39cbac245b3a5d84856ed6384f4ff07d496369ee6d960bad in / 
 ```
 
-The top three layer commands stick out, lets look at them fully (with `--no-trunc`):
+The top three layer commands stick out, lets look at them fully (with `--no-trunc` flag):
 ```console
 # final image
 /bin/sh -c #(nop)  ENTRYPOINT ["java" "-jar" "./SerializationDumper.jar"]
@@ -230,20 +231,20 @@ The top three layer commands stick out, lets look at them fully (with `--no-trun
 /bin/sh -c cd /usr/src/SerializationDumper &&  mkdir out &&  javac -cp ./src ./src/nb/deser/SerializationDumper.java ./src/nb/deser/support/*.java -d ./out &&  jar cvfm SerializationDumper.jar MANIFEST.MF -C ./out/ . &&  mv SerializationDumper.jar /root/
 ```
 
-It is very normal to use docker containers for building programs but what sticks out is the second to last later that _attempts_ to clean up the build directory with `rm -rf /usr/src/SerializationDumper`.
+It is very normal to use docker containers for building programs and removing the source code afterwards but what sticks out is the second to last layer; The layer that _attempts_ to clean up the build directory with `rm -rf /usr/src/SerializationDumper` after a layer.
 
-If they had done this on the build layer `cd /usr/src/SerializationDumper && mkdir out && .... ` it would've removed the source code from the layer before it was created. However, running the `rm -rf` command on the next layer does indeed delete it from the final image, but it doesn't remove it from the layer before it. We need to look at the third from last layer.
+If they had done this on the build layer `cd /usr/src/SerializationDumper && mkdir out && .... `, it would've removed the source code from the layer before it was created. However, running the `rm -rf` command on the next layer does indeed delete it from the final image, but it doesn't remove it from the layer before it. We need to look at the third from last layer.
 
 #### Taking apart the container
 
 To get the sublayers we save the image to a `.tar` and then uncompress it:
 
 ```console
-$ docker save public.ecr.aws/sensorby/serialization-dumper:latest > serialization-dumper.tar
-$ tar -xvf serialization-dumper.tar 
+jaden@monstera:~$ docker save public.ecr.aws/sensorby/serialization-dumper:latest > serialization-dumper.tar
+jaden@monstera:~$ tar -xvf serialization-dumper.tar 
 ```
 
-This creates a folder for each of the layers that change the filesystem (ie where SIZE is >0B):
+This creates a folder for each of the layers that have content changes (ie where SIZE is >0B):
 
 ```console
 08e4b6c99bb09afeaae122f0a2c04b27812ee447df70cc35c25649d002d06154/
@@ -271,7 +272,7 @@ manifest.json
 repositories
 ```
 
-From here I went into each of the folders (layers) alphanumerically and unzipped the layer itself:
+From here I went into each of the folders (layers) alphanumerically and untarred the layer itself:
 ```console
 jaden@monstera:~/08e4b6c99bb09afeaae122f0a2c04b27812ee447df70cc35c25649d002d06154$ tar -xvf layer.tar 
 usr/
@@ -296,10 +297,14 @@ usr/src/SerializationDumper/.git/description
 
 This was the third from last layer, the one with the history of:
 ```console
-/bin/sh -c cd /usr/src/SerializationDumper &&  mkdir out &&  javac -cp ./src ./src/nb/deser/SerializationDumper.java ./src/nb/deser/support/*.java -d ./out &&  jar cvfm SerializationDumper.jar MANIFEST.MF -C ./out/ . &&  mv SerializationDumper.jar /root/
+/bin/sh -c cd /usr/src/SerializationDumper &&  \
+mkdir out &&  \
+javac -cp ./src ./src/nb/deser/SerializationDumper.java ./src/nb/deser/support/*.java -d ./out &&  \
+jar cvfm SerializationDumper.jar MANIFEST.MF -C ./out/ . && \
+mv SerializationDumper.jar /root/
 ```
 
-Specifically this layer has the **source code** in it. But more importantly, it is a full git directory!
+Specifically this layer has the **source code** in it. But more importantly, it is a full git repository!
 
 After navigating into the subdirectory with the git repository (./usr/src/SerializationDumper) I start to poke around.
 
@@ -334,7 +339,7 @@ index 1c62328..1931f95 100644
 
 I finally see the keyword I have been searching for to confirm I was on the right track: **Sensorby**.
 
-Here is the full quote from the git commit:
+Here is the full quote from the git commit `560139176df9e2121a63d3b893632565f1a719d8`:
 
 <blockquote>
 Since our system was recently optimized to make our web app scans faster, a lot of internal traffic happens using Java serialization stream. To debug any issue, use this tool to decode the Java serialization to human readable form and them check if its an issue with the code or data passed to it.
