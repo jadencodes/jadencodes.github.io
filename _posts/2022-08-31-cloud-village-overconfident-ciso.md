@@ -1,8 +1,9 @@
 ---
 layout: post
-title:  "Cloud Village CTF - Over Confident CISO"
+title:  "CV CTF - Over Confident CISO"
 date:   2022-08-31 11:52:27 -0600
-categories: jekyll update
+categories: ctf cloudvillage
+tags: defcon ctf cloudvillage
 ---
 
 ## What is Cloud Village CTF?
