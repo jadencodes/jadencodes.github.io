@@ -4,21 +4,8 @@ title:  "CV CTF - Over Confident CISO"
 date:   2022-08-31 11:52:27 -0600
 categories: ctf cloudvillage
 tags: defcon ctf cloudvillage
+description: "Writeup/Solution to Defcon 2022 Cloud Village CTF: OverConfident CISO (200 points)"
 ---
-
-## What is Cloud Village CTF?
-
-[Cloud village](https://cloud-village.org/) is a village at Defcon self described as:
-
-<blockquote>
-Cloud Village is an open space to meet folks interested in offensive and defensive aspects of cloud security.
-</blockquote>
-
-They have provided Jeopory style CTF (capture the flag) competitions that I (and friends) have competed in as a team the past couple of years. We actually won the Defcon 29 Cloud Village CTF and were looking to play again. Cloud Village CTF prompts are generally **extremely** broad and often have red herrings. Further, Cloud Village questions are generally more than one step, meaning the first clue you find generally leads to another and so on.
-
-`Jeopordy style` means the CTF solutions are submitted in standardized `flags`. For cloudvillage, the format was `FLAG-{ANY_32_CHARS_HERE}`; for example, `FLAG-{abcdefghijklemnopqrstuvwxyz1234567890}`
-
-This post will document how and why we went through the first CTF challenge including the thought process, incorrect approaches and red herrings.
 
 ## Prompt
 

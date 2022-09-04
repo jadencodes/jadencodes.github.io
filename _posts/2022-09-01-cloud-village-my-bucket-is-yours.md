@@ -4,6 +4,7 @@ title:  "CV CTF - My Bucket Is Yours"
 date:   2022-09-01 17:00:00 -0600
 categories: ctf cloudvillage
 tags: defcon ctf cloudvillage
+description: "Writeup/Solution to Defcon 2022 Cloud Village CTF: My bucket is yours (200 points)"
 ---
 
 ## Prompt
