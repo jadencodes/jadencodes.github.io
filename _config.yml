@@ -34,6 +34,7 @@ plugins:
   - jekyll-feed
   - jekyll-remote-theme
   - jekyll-seo-tag
+  - jekyll-sitemap
 
 google_analytics: G-NYF9P7LN4D
 
