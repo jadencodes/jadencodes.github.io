@@ -38,6 +38,8 @@ Here are a list of writeups for the 2022 capture the flag.
 
 [Deep Dive Into Vessel]({% post_url 2022-09-02-cloud-village-deep-dive-into-vessel %}) - 300 Points
 
+[Big Bad Darkweb]({% post_url 2022-09-09-cloud-village-big-bad-darkweb %}) - 400 Points
+
 ### Team
 
 These writeups will liberally interchange the words "I" and "we". None of the problems were actually solved alone by me, but rather the following team:
