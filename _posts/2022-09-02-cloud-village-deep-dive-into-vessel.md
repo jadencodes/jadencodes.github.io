@@ -26,7 +26,7 @@ description: "Writeup/Solution to Defcon 2022 Cloud Village CTF: Deep dive into 
 
 ### Lucky guesses
 
-I start with one of the main docker registries: [docker hub](https://hub.docker.com). I started typing out `justmorpheus` but before I could finish typing a slightly different spelling of `justmorpheu5` came up. Suspiciously, one of the docker images that came up was called [vulnerable-deepdive](https://hub.docker.com/r/justmorpheu5/vulnerable-deepdive) with only a single tag was uploaded and was done so a couple months before the CTF. 
+I start with one of the main docker registries: [docker hub](https://hub.docker.com). I started typing out `justmorpheus` but before I could finish typing a slightly different spelling of `justmorpheu5` came up. Suspiciously, one of the docker images that came up was called [vulnerable-deepdive](https://hub.docker.com/r/justmorpheu5/vulnerable-deepdive) with only a single tag was uploaded and was done so a couple of months before the CTF. 
 
 ![justmorpheu5 docker search](/assets/images/justmorpheu5-docker-hub-search.png)
 
@@ -63,7 +63,7 @@ b714087d0a96   2 months ago   ENTRYPOINT ["/tmp/docker-entrypoint.sh"]        0B
 <missing>      3 months ago   /bin/sh -c #(nop) ADD file:134f25aec8adf83cb…   80.4MB   
 ```
 
-Looks like the third from the final layer adds a Python app `app.py`. Lets take apart the image to its individual layers:
+Looks like the third from the final layer adds a Python app `app.py`. Let's take apart the image to its individual layers:
 
 ```console
 $ docker save justmorpheu5/vulnerable-deepdive:v1.1 > deepdive.tar
@@ -81,7 +81,7 @@ tmp/app.py
 
 ### The file
 
-Now that we have the file, lets open it up:
+Now that we have the file, let's open it up:
 
 ```python
 # Import the SDK
@@ -212,7 +212,7 @@ bucket.delete()
 # https://boto3.readthedocs.org/en/latest/reference/services/s3.html
 ```
 
-This looks _almost_ identical to python file from the previous problem, [My Bucket Is Yours]({% post_url 2022-09-01-cloud-village-my-bucket-is-yours %}).
+This looks _almost_ identical to the python file from the previous problem, [My Bucket Is Yours]({% post_url 2022-09-01-cloud-village-my-bucket-is-yours %}).
 
 The only difference at first glance are these lines with what appear to be `AWS` credentials:
 
@@ -227,7 +227,7 @@ ENV AWS_FILE='flag.txt'
 
 We have the bucket name, `cloudvillage2022`, the file name, `flag.txt`, and then two different types of credentials as well as the region.
 
-Lets try the most basic kind of credentials first, `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`. There are a few ways to use them, they can be placed in your `~/.aws/credentials` or set as environment variables:
+Let's try the most basic kind of credentials first, `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`. There are a few ways to use them, they can be placed in your `~/.aws/credentials` or set as environment variables:
 
 ```console
 $ AWS_ACCESS_KEY_ID='AKIA4O2KYGPPL6SQRPIN' \

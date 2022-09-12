@@ -7,7 +7,7 @@ tags: defcon ctf cloudvillage
 description: "Writeup/Solution to Defcon 2022 Cloud Village CTF: Gold Hunter(400 points)"
 ---
 
-This challenge turned into one of the longest and most difficult for us. All of us took different approaches, so I won't be including all of them.
+This challenge turned into one of the longest and most difficult for us. All of us took different approaches and I won't be including all of them.
 
 ## Prompt
 

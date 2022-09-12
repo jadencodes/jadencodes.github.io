@@ -17,7 +17,7 @@ So we have narrowed it down to the entire internet.
 
 The key part here is actually the _title_ of the challenge, specifically the word **bucket**.
 
-**NOTE:** After no teams had solved this during the first 12 hours of the competition - likely due to the broadness of the prompt - cloud-village appended and tweaked the initial prompt to include slightly more information. I didn't have the forsight to document what it was changed to but I have the following notes:
+**NOTE:** After no teams had solved this during the first 12 hours of the competition - likely due to the broadness of the prompt - cloud-village appended and tweaked the initial prompt to include slightly more information. I didn't have the foresight to document what it was changed to but I have the following notes:
 
 - Codebase
 - Python
@@ -29,9 +29,9 @@ The key part here is actually the _title_ of the challenge, specifically the wor
 
 Not a lot, but not nothing either. At this point there are two likely scenarios based on the prompt and title: the codebase is stored in a bucket OR, the bucket is referenced in the code base.
 
-### Github search
+### GitHub search
 
-Github search can be quite useful if you know what you are doing. Regardless, I was able to narrow down the repositories with the search term [cloud-village](https://github.com/search?l=Python&q=cloud-village&type=Repositories) and selecting `Python` as the primary repository languange I was looking for.
+GitHub search can be quite useful if you know what you are doing. Regardless, I was able to narrow down the repositories with the search term [cloud-village](https://github.com/search?l=Python&q=cloud-village&type=Repositories) and selecting `Python` as the primary repository language I was looking for.
 
 This gave me two results:
 
@@ -178,21 +178,21 @@ This is all fine and dandy, but these two lines are suspicious:
 ENV GCP="<variable>"
 ```
 
-The comment indiciates a known mistake in the code, but more importantly the variable `GCP` likely stands for "Google Cloud Platform". Not to mention, `ENV` is not valid python... This indicates that we should expect look in Google Storage buckets for the flag.
+The comment indicates a known mistake in the code, but more importantly the variable `GCP` likely stands for "Google Cloud Platform". Not to mention, `ENV` is not valid python... This indicates that we should expect to look in Google Storage buckets for the flag.
 
 ### Git history
 
-We can open the commit history in github and see two commits:
+We can open the commit history in GitHub and see two commits:
 
 ![my buckets commit history](/assets/images/my-bucket-commit-history.png)
 
-The earliest of the two commits initially adds following line:
+The earliest of the two commits initially adds the following line:
 
 ```python
 ENV GCP="cloud-village-2022/"
 ```
 
-This presumably simulates a common mistake of hardcoding an environment variable meant to be added during a deploy.
+This presumably simulates a common mistake of hard coding an environment variable meant to be added during a deploy.
 
 ### Putting it all together
 

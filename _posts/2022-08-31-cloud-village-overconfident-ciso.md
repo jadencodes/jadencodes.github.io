@@ -32,13 +32,13 @@ From this we assumed we were looking for (at least to start) credentials in VMs 
 
 At this point it's a lot of guessing, trying different things, documenting and sharing _anything_ even remotely relevant with the team.
 
-[docker containers](https://www.docker.com/) are something I use every day and am very comfortable finding, building, and deploying so I figured I would start there. The first place I looked was the most popular **public** docker container registry: [docker hub](https://hub.docker.com/). I just started blindly searching for anything and everything around `Sensorby`.
+[docker containers](https://www.docker.com/) are something I use every day and am very comfortable finding, building, and deploying, so I figured I would start there. The first place I looked was the most popular **public** docker container registry: [docker hub](https://hub.docker.com/). I just started blindly searching for anything and everything around `Sensorby`.
 
 Nothing was coming up there, so I started looking at the VM aspect. For this, I started in the cloud provider I am most familiar with: `AWS`. To look for virtual machines, I went to `EC2 -> AMI` and began the same blind searching through community VMs. Again nothing really came up.
 
 ### First clue
 
-If it was in another cloud providers VM, I was not the correct person to find it, so I started casting a wider net on the container lookup. There are other registries as well so I started going through them. 
+If it was in another cloud provider's VM, I was not the correct person to find it, so I started casting a wider net on the container lookup. There are other registries as well so I started going through them. 
 
 After running out of things to search in `docker hub`, I moved to look at `quay.io`, but the same nothingness. I then had a recollection that ECR (elastic container registry) had announced changes to their public repository `Gallery` somewhat recently so I figured I'd look there. First search of [`Sensorby`](https://gallery.ecr.aws/?searchTerm=Sensorby) on the public registry and **boom** we had something:
 
@@ -46,7 +46,7 @@ After running out of things to search in `docker hub`, I moved to look at `quay.
 
 This matched even more perfectly than we could have hoped, including the "LLC" suffix.
 
-I poked around in the `Sensorby LLC` Organization but there wasn't any other images or information.
+I poked around in the `Sensorby LLC` Organization, but there wasn't any other images or information.
 
 #### The image
 
@@ -93,7 +93,7 @@ drwxr-xr-x    1 root     root          4096 Sep  1 03:19 ..
 
 ```
 
-I was _hoping_ there would be credentials somewhere in the `env` or possibly a left over history file where a command could be seen but those seem clean. The only thing we have is the `SerializationDumper.jar`, I figured I'd spend another few minutes poking about the filesystem.
+I was _hoping_ there would be credentials somewhere in the `env` or possibly a leftover history file where a command could be seen, but those seem clean. The only thing we have is the `SerializationDumper.jar`, I figured I'd spend another few minutes poking about the file system.
 
 Maybe this was the one and only step in the question for once? If the flag is in a file, it is commonly in `flag.txt`:
 
@@ -103,7 +103,7 @@ Maybe this was the one and only step in the question for once? If the flag is in
 ...
 ```
 
-Last check. Although brute force and/or craching is rarely involved, I may as well check:
+Last check. Although brute force and/or cracking is rarely involved, I may as well check:
 
 ```console
 ~ # cat /etc/shadow 
@@ -118,11 +118,11 @@ Nope.
 
 #### The jar file
 
-At this point we are pretty committed to thinking the `SerializationDumper.jar` is the key to the next step. Maybe there was hard coded credentials?
+At this point we are pretty committed to thinking the `SerializationDumper.jar` is the key to the next step. Maybe there were hard coded credentials?
 
 I grabbed a [java decompiler](http://java-decompiler.github.io/) and dumped the program in it.
 
-Nothing really stood out in the file, it was a fairly complex java program to be sure (also because all of the comments had been removed by the compiler), but the file itself seemed purely functional with nothing hidden.
+Nothing really stood out in the file, it was a fairly complex java program to be sure (also because all the comments had been removed by the compiler), but the file itself seemed purely functional with nothing hidden.
 
 Here is a snippet from the decompiled `SerializationDumper.class`:
 ```java
@@ -160,17 +160,17 @@ Finally the thought came to ya know, google it? [serialization dumper](https://g
 
 > A tool to dump and rebuild Java serialization streams and Java RMI packet contents in a more human readable form.
 
-Just to be safe we checked the content of the files and they were the same. We couldn't just check the SHAs because those would of course be different.
+Just to be safe, we checked the content of the files and they were the same. We couldn't just check the SHA's because those would of course be different.
 
 At this point I switch to a different problem after noting the findings in our discord channel.
 
 #### Back to the image
 
-After a few more ~~drinks~~ hours, I went back to the image, at this point both my teammates and myself have checked every environment variable, softlink, and daemon of the **running** container and nothing is sticking out.
+After a few more ~~drinks~~ hours, I went back to the image, at this point both my teammates and I have checked every environment variable, soft link, and daemon of the **running** container and nothing is sticking out.
 
-I have a thought: we need to see _how_ the image was made. A quick search in Github for the sensorby Dockerfile didn't yield any results so I would have to look at the next best option: `docker history`.
+I have a thought: we need to see _how_ the image was made. A quick search in GitHub for the sensorby Dockerfile didn't yield any results so I would have to look at the next best option: `docker history`.
 
-Without going too off topic or in depth, docker images are composed of one or more seperate layers, and each layer is an image, just without a tag.
+Without going too off topic or in depth, docker images are composed of one or more separate layers, and each layer is an image, just without a tag.
 
 Docker history shows each of the _layers_ (images) and there is one per Dockerfile instruction. The key part is they store the _difference_ between the layers, not the _absolute_ image (for lack of a better term) at that stage. 
 
@@ -207,7 +207,7 @@ c76f6ff58ae2   5 weeks ago   /bin/sh -c #(nop)  ENTRYPOINT ["java" "-jar"…   0
 <missing>      3 years ago   /bin/sh -c #(nop) ADD file:0eb5ea35741d23fe3…   5.58MB    file:0eb5ea35741d23fe39cbac245b3a5d84856ed6384f4ff07d496369ee6d960bad in / 
 ```
 
-The top three layer commands stick out, lets look at them fully (with `--no-trunc` flag):
+The top three layer commands stick out, let's look at them fully (with `--no-trunc` flag):
 ```console
 # final image
 /bin/sh -c #(nop)  ENTRYPOINT ["java" "-jar" "./SerializationDumper.jar"]
@@ -219,7 +219,7 @@ The top three layer commands stick out, lets look at them fully (with `--no-trun
 /bin/sh -c cd /usr/src/SerializationDumper &&  mkdir out &&  javac -cp ./src ./src/nb/deser/SerializationDumper.java ./src/nb/deser/support/*.java -d ./out &&  jar cvfm SerializationDumper.jar MANIFEST.MF -C ./out/ . &&  mv SerializationDumper.jar /root/
 ```
 
-It is very normal to use docker containers for building programs and removing the source code afterwards but what sticks out is the second to last layer; The layer that _attempts_ to clean up the build directory with `rm -rf /usr/src/SerializationDumper` after a layer.
+It is very normal to use docker containers for building programs and removing the source code afterwards, but what sticks out is the second to last layer; The layer that _attempts_ to clean up the build directory with `rm -rf /usr/src/SerializationDumper` after a layer.
 
 If they had done this on the build layer `cd /usr/src/SerializationDumper && mkdir out && .... `, it would've removed the source code from the layer before it was created. However, running the `rm -rf` command on the next layer does indeed delete it from the final image, but it doesn't remove it from the layer before it. We need to look at the third from last layer.
 
@@ -232,7 +232,7 @@ jaden@monstera:~$ docker save public.ecr.aws/sensorby/serialization-dumper:lates
 jaden@monstera:~$ tar -xvf serialization-dumper.tar 
 ```
 
-This creates a folder for each of the layers that have content changes (ie where SIZE is >0B):
+This creates a folder for each of the layers that have content changes (i.e. where SIZE is >0B):
 
 ```console
 08e4b6c99bb09afeaae122f0a2c04b27812ee447df70cc35c25649d002d06154/
@@ -292,7 +292,7 @@ jar cvfm SerializationDumper.jar MANIFEST.MF -C ./out/ . && \
 mv SerializationDumper.jar /root/
 ```
 
-Specifically this layer has the **source code** in it. But more importantly, it is a full git repository!
+Specifically, this layer has the **source code** in it. But more importantly, it is a full git repository!
 
 After navigating into the subdirectory with the git repository (./usr/src/SerializationDumper) I start to poke around.
 
@@ -332,12 +332,12 @@ Here is the full quote from the git commit `560139176df9e2121a63d3b893632565f1a7
 <blockquote>
 Since our system was recently optimized to make our web app scans faster, a lot of internal traffic happens using Java serialization stream. To debug any issue, use this tool to decode the Java serialization to human readable form and them check if its an issue with the code or data passed to it.
 
-**Note:** This tool was not tested across all repositories due to lack of time. However testing it against our own code base asclepius backend showed the tool to be promising. Please reach out to us in our slack channel #project-asclepius.
+**Note:** This tool was not tested across all repositories due to lack of time. However, testing it against our own code base asclepius backend showed the tool to be promising. Please reach out to us in our slack channel #project-asclepius.
 </blockquote>
 
 We are given yet another project to search for: **asclepius**.
 
-Lets look at the `.git/config` to see where this repository is hosted, assuming the other project would be in the same place.
+Let's look at the `.git/config` to see where this repository is hosted, assuming the other project would be in the same place.
 
 ```console
 [core]
@@ -355,7 +355,7 @@ Lets look at the `.git/config` to see where this repository is hosted, assuming 
 
 Credentials at last! We see the `sensorby:c8qGEYjH4j4kcaECx3QT@bitbucket.org` telling us the credentials and _where_ the company `Sensorby` likely hosts their codebases.
 
-Lets try and clone the new project assuming the same credentials will work:
+Let's try and clone the new project assuming the same credentials will work:
 
 ```console
 $ git clone https://sensorby:c8qGEYjH4j4kcaECx3QT@bitbucket.org/sensorby-devops/asclepius.git
