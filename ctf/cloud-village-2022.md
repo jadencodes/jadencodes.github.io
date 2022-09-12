@@ -3,6 +3,8 @@
 layout: page
 permalink: /cloud-village-2022
 title: "Cloud Village 2022 CTF"
+tags: defcon ctf cloudvillage "cloud village" "ctf" "cloud village ctf"
+description: "Defcon 2022 Cloud village CTF writeups"
 ---
 
 ## What is Defcon
@@ -30,7 +32,7 @@ They have provided Jeopory style CTF (capture the flag) competitions that I (and
 
 ## Writeups
 
-Here are a list of writeups for the 2022 capture the flag.
+Here are a list of writeups for the 2022 capture the flag. We are missing 2 or 3 because we didn't complete them and/or didn't document them well enough throughout. If you have a missing one please reach out :).
 
 [Overconfident CISO]({% post_url 2022-08-31-cloud-village-overconfident-ciso %}) - 200 Points
 
@@ -40,11 +42,13 @@ Here are a list of writeups for the 2022 capture the flag.
 
 [Big Bad Darkweb]({% post_url 2022-09-09-cloud-village-big-bad-darkweb %}) - 400 Points
 
+[Gold Hunter]({% post_url 2022-09-10-cloud-village-gold-hunter %}) - 400 Points
+
 ### Team
 
 These writeups will liberally interchange the words "I" and "we". None of the problems were actually solved alone by me, but rather the following team:
 
+- [Ogre](https://twitter.com/whoisthisogre)
 - x7b7
-- Ogre
 - Vanjenson
 - Sig9
