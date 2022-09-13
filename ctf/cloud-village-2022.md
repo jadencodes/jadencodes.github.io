@@ -49,6 +49,6 @@ Here are a list of writeups for the 2022 capture the flag. We are missing 2 or 3
 These writeups will liberally interchange the words "I" and "we". None of the problems were actually solved alone by me, but rather the following team:
 
 - [Ogre](https://twitter.com/whoisthisogre)
-- x7b7
+- [Bradley Smith](https://twitter.com/bradleydsmith)
 - Vanjenson
 - Sig9
