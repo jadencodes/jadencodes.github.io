@@ -21,7 +21,7 @@
 title: Jaden Codes
 email: jaden@jadencodes.io
 description: >-
-  Site Reliability Engineer who enjoys tinkering in 3D printing, IOT, and CTFs.
+  Engineer who enjoys tinkering in 3D printing, IOT, and CTFs.
 baseurl: "" # the subpath of your site, e.g. /blog
 domain: "jadencodes.io"
 url: "https://jadencodes.io" # the base hostname & protocol for your site, e.g. http://example.com
@@ -43,6 +43,7 @@ minima:
 
 header_pages:
   - ctf/cloud-village-2022.md
+  - ctf/cyber-apocalypse-2024.md
 
 # Exclude from processing.
 # The following items will not be processed, by default.
