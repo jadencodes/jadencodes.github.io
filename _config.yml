@@ -42,8 +42,9 @@ minima:
   skin: dark
 
 header_pages:
-  - ctf/cloud-village-2022.md
+  - ctf/cloud-village-2024.md
   - ctf/cyber-apocalypse-2024.md
+  - ctf/cloud-village-2022.md
 
 # Exclude from processing.
 # The following items will not be processed, by default.
